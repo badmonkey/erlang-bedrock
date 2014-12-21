@@ -1,4 +1,5 @@
 erlang-bedrock
 ==============
 
-bedrock server written in erlang
+bedrock server written in erlang.
+
