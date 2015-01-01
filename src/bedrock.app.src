@@ -1,0 +1,11 @@
+{application, bedrock,
+[
+    {description, ""},
+    {vsn, "1.0.0"},
+    {registered, []},
+    {applications, [
+            kernel, stdlib, erlangx
+        ]},
+    {mod, { bedrock_app, []}},
+    {env, []}
+]}.

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec erl -pz ebin/ deps/*/ebin extra/*/ebin apps/*/ebin -s bedrock
