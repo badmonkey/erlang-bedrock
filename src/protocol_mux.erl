@@ -97,7 +97,9 @@ handle_data({raw, <<16#fe01:16, 16#fa:8, Data/binary>>}, State) ->
                                                          , fun bindecoder:ulong/1], Info),
             xerlang:trace("protocol_mux::handle_data,INFO", {V, binencoder:utf8(H), P}),
             
-            Reply = binencoder:utf16_list([[16#a7, $1], "47", "1.8.1", "Description", "1", "100"]),
+            {NumPlayers, MaxPlayers} = bedrock_central:get_player_counts(),
+            
+            Reply = binencoder:utf16_list([[16#a7, $1], "47", "1.8.1", "Description", integer_to_list(NumPlayers), integer_to_list(MaxPlayers)]),
             Size = byte_size(Reply),
             {close, <<16#ff:8, Size:16/big-unsigned-integer, Reply/binary>>, State}
         

@@ -4,7 +4,7 @@
     {vsn, "1.0.0"},
     {registered, []},
     {applications, [
-            kernel, stdlib, erlangx
+            kernel, stdlib, crypto, erlangx
         ]},
     {mod, { bedrock_app, []}},
     {env, []}

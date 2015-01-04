@@ -120,14 +120,21 @@ handle_data({packet, _Data}, #state{mode = mc_handshake} = State) ->
 
 handle_data({packet, <<16#00>>}, #state{mode = mc_status} = State) ->
     xerlang:trace("Status:Request"),
+    {NumPlayers, MaxPlayers} = bedrock_central:get_player_counts(),
+    
     JsonReply = [{<<"version">>,
-                    [{<<"name">>, <<"1.8.1">>}, {<<"protocol">>, 47}] },
+                    [{<<"name">>, list_to_binary(bedrock_central:get_name())},
+                     {<<"protocol">>, 47}] },
                  {<<"players">>,
-                    [{<<"max">>, 100}, {<<"online">>, 2}] },
+                    [{<<"max">>, MaxPlayers},
+                     {<<"online">>, NumPlayers}] },
                  {<<"description">>,
-                    [{<<"text">>, <<"Bedrock test server">>}] } ],
-    ReplyData = make_packet(jsx:encode(JsonReply)),
+                    [{<<"text">>, list_to_binary(bedrock_central:get_description())}] }
+                ],
+                    
+    ReplyData = binencoder:json(JsonReply),
     xerlang:trace( binary_to_list(ReplyData) ),
+    
     {reply, make_packet(16#00, ReplyData), State};
 
     
