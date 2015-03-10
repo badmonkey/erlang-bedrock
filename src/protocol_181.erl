@@ -1,34 +1,31 @@
 
 -module(protocol_181).
 
--behaviour(erlx_tcp_server).
--behaviour(erlx_packet_processor).
+-behaviour(packet_processor).
 
 
--export([start_link/1, start_link/2]).
+-export([start_link/2]).
 -export([ init/1, handle_call/3, handle_cast/2, handle_info/2
         , terminate/2, code_change/3]).
--export([ handle_connection/1, handle_error/3]).
 -export([ init/2, handle_data/2]).
+
+
+%%%%% ------------------------------------------------------- %%%%%
 
 
 -record(state, 
     { mode      = mc_handshake
     , socket    = undefined
     , zhandle   = undefined
+    , threshold = 0
     }).
     
-
     
 %%%%% ------------------------------------------------------- %%%%%
 
 
-start_link(Port) ->
-    erlx_tcp_server:start_link(?MODULE, Port).
-    
-
-start_link(Port, InitParams) ->
-    erlx_tcp_server:start_link(?MODULE, Port, InitParams).
+start_link(Socket, Args) ->
+    packet_processor:start_link(?MODULE, Socket, Args).
 
 
 %%%%% ------------------------------------------------------- %%%%%
@@ -66,23 +63,10 @@ handle_info(Info, State) ->
 %%%%% ------------------------------------------------------- %%%%%
 
 
-handle_connection({_Ipaddr, _Port, Socket, _UserData}) ->
-    erlx_packet_processor:start_link(?MODULE, Socket, []).
-
-
-%%%%% ------------------------------------------------------- %%%%%
-
-
-handle_error({_Ipaddr, _Port, _UserData}, Reason, State) ->
-    {stop, Reason, State}.
-
-
-%%%%% ------------------------------------------------------- %%%%%
-
-
 %
 % mode handshake
 %
+
 handle_data({packet, <<16#00, Data/binary>>}, #state{mode = mc_handshake} = State) ->
     xerlang:trace("protocol_181::Handshake"),
     case bindecoder:sequence([ fun bindecoder:varint/1
@@ -146,6 +130,7 @@ handle_data({packet, <<16#01, _Time:64/big-signed-integer>> = Bytes}, #state{mod
 handle_data({packet, _Bytes}, #state{mode = mc_status} = State) ->
     xerlang:trace("Status:Unknown"),
     {ok, State};
+   
    
 %
 % mode login

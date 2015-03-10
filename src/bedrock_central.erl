@@ -42,7 +42,7 @@ get_description() ->
 
 
 init(_Args) ->
-%    config_server:load_once(bedrock),
+%    sysconfig:load_once(bedrock),
     {ok, #state{}}.
 
     

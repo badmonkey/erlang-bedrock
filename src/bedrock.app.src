@@ -6,6 +6,6 @@
     {applications, [
             kernel, stdlib, crypto, erlangx
         ]},
-    {mod, { bedrock_app, []}},
+    {mod, { bedrock, []}},
     {env, []}
 ]}.

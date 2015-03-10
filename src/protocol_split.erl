@@ -1,14 +1,12 @@
 
--module(protocol_mux).
+-module(protocol_split).
 
--behaviour(erlx_tcp_server).
--behaviour(erlx_packet_processor).
+-behaviour(packet_processor).
 
 
--export([start_link/1, start_link/2]).
+-export([start_link/2]).
 -export([ init/1, handle_call/3, handle_cast/2, handle_info/2
         , terminate/2, code_change/3]).
--export([ handle_connection/1, handle_error/3]).
 -export([ init/2, handle_data/2]).
 
 
@@ -21,12 +19,8 @@
 %%%%% ------------------------------------------------------- %%%%%
 
 
-start_link(Port) ->
-    erlx_tcp_server:start_link(?MODULE, Port).
-    
-
-start_link(Port, InitParams) ->
-    erlx_tcp_server:start_link(?MODULE, Port, InitParams).
+start_link(Socket, Args) ->
+    packet_processor:start_link(?MODULE, Socket, Args).
 
 
 %%%%% ------------------------------------------------------- %%%%%
@@ -64,22 +58,9 @@ handle_info(Info, State) ->
 %%%%% ------------------------------------------------------- %%%%%
 
 
-handle_connection({_Ipaddr, _Port, Socket, _UserData}) ->
-    erlx_packet_processor:start_link(?MODULE, Socket, []).
-
-
-%%%%% ------------------------------------------------------- %%%%%
-
-
-handle_error({_Ipaddr, _Port, _UserData}, Reason, State) ->
-    {stop, Reason, State}.
-
-
-%%%%% ------------------------------------------------------- %%%%%
-
-
 %
 % looking for 1.6.4 pinglist
+% Wait until we have atleast 3 bytes before we proceed
 handle_data({raw, Bytes}, State) when byte_size(Bytes) < 3 ->
     {more, 3 - byte_size(Bytes), State};
     
@@ -92,9 +73,9 @@ handle_data({raw, <<16#fe01:16, 16#fa:8, Data/binary>>}, State) ->
         {ok, [Chan, Info], _Rest} -> 
             xerlang:trace("protocol_mux::handle_data,CHANNEL", binencoder:utf8(Chan)),
 
-            {ok, [V, H, P], Rest2} = bindecoder:sequence([ fun bindecoder:byte/1
-                                                         , bindecoder:match_utf16_string()
-                                                         , fun bindecoder:ulong/1], Info),
+            {ok, [V, H, P], _Rest2} = bindecoder:sequence([ fun bindecoder:byte/1
+                                                          , bindecoder:match_utf16_string()
+                                                          , fun bindecoder:ulong/1], Info),
             xerlang:trace("protocol_mux::handle_data,INFO", {V, binencoder:utf8(H), P}),
             
             {NumPlayers, MaxPlayers} = bedrock_central:get_player_counts(),

@@ -26,7 +26,7 @@ start_link() ->
 
 init([]) ->
     {ok, { {one_for_one, 1, 10}, [
-%              ?CHILD(config_server, worker)
+%              ?CHILD(sysconfig, worker)
              ?CHILD(protocol_mux, worker, [25565])
             , ?CHILD(bedrock_central, worker)
         ]} }.
