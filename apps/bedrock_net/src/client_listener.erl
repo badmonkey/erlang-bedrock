@@ -7,7 +7,7 @@
 -export([start_link/1, start_link/2]).
 -export([ init/1, handle_call/3, handle_cast/2, handle_info/2
         , terminate/2, code_change/3]).
--export([ handle_connection/1, handle_error/3]).
+-export([ handle_connection/3, handle_error/3]).
 
 
 -record(state, 
@@ -20,6 +20,7 @@
 
 
 start_link(Port) ->
+    lager:info("Starting client_listener: ~p", [Port]),
     tcp_listener:start_link(?MODULE, Port).
     
 
@@ -37,44 +38,47 @@ init(_InitParams) ->
 %%%%% ------------------------------------------------------- %%%%%
 
 
-handle_call(Request, From, State) ->
-    {stop, {bad_call_request, Request, From}, State}.
+handle_call(_Request, _From, State) ->
+    {stop, invalid_call_request, State}.
+
+    
+%%%%% ------------------------------------------------------- %%%%%
+
+    
+handle_cast(_Msg, State) ->
+    {stop, invalid_cast_request, State}.
+
+    
+%%%%% ------------------------------------------------------- %%%%%
+
+    
+handle_info(_Info, State) ->
+    {stop, invalid_info_request, State}.
+
+    
+%%%%% ------------------------------------------------------- %%%%%
+
+
+handle_connection({_Local, _Remote, Socket}, _UserData, _State) ->
+    bedrock_net_sup:start_processor(Socket).
 
 
 %%%%% ------------------------------------------------------- %%%%%
 
 
-handle_cast(Msg, State) ->
-    {stop, {bad_cast_request, Msg}, State}.
+handle_error({_Endpoint, _UserData}, Reason, State) ->
+    {stop, Reason, State};
+    
 
-
-%%%%% ------------------------------------------------------- %%%%%
-
-
-handle_info(Info, State) ->
-    {stop, {bad_info_request, Info}, State}.
-
-
-%%%%% ------------------------------------------------------- %%%%%
-
-
-handle_connection({_Ipaddr, _Port, Socket, _UserData}) ->
-    protocol_split:start_link(Socket, []).
-
-
-%%%%% ------------------------------------------------------- %%%%%
-
-
-handle_error({_Ipaddr, _Port, _UserData}, Reason, State) ->
+handle_error({_Local, _Remote, _Socket}, Reason, State) ->
     {stop, Reason, State}.
 
 
 %%%%% ------------------------------------------------------- %%%%%
 
 
-terminate(_Reason, #state{}) ->
+terminate(_Reason, _State) ->
     ok.
-
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.

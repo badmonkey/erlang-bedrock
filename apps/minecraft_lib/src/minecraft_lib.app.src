@@ -1,18 +1,19 @@
-{application, bedrock,
+{application, minecraft_lib,
 [
-    {description, ""},
+    {description, "minecraft_lib"},
     {vsn, "1.0.0"},
     {modules,
-        [ bedrock, bedrock_sup, bedrock_central
+        [ minecraft_lib_app
+        , minecraft_nbt
         ] },
     {registered,
-        [ bedrock_central
+        [ 
         ] },
     {applications,
         [ kernel, stdlib, crypto
         , erlangx, lager
-        , bedrock_core, bedrock_net
         ] },
-    {mod, { bedrock, []}},
+    {mod, { minecraft_lib_app, []}},
     {env, []}
 ]}.
+

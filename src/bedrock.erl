@@ -2,6 +2,7 @@
 
 -behaviour(application).
 
+
 %% Application callbacks
 -export([start/2, start/0, stop/1]).
 
@@ -10,7 +11,9 @@
 %% ===================================================================
 
 start() ->
-    application:ensure_all_started(bedrock).
+    application:ensure_all_started(bedrock),
+    lager:info("Started Bedrock server"),
+    application:load(bedrock).
     
     
 start(_StartType, _StartArgs) ->

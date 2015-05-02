@@ -1,0 +1,21 @@
+{application, bedrock_net,
+[
+    {description, "bedrock_net"},
+    {vsn, "1.0.0"},
+    {modules,
+        [ bedrock_net_app, bedrock_net_sup
+        , client_listener, protocol_split
+        , protocol_17x, protocol_181
+        ] },
+    {registered,
+        [
+        ] },
+    {applications,
+        [ kernel, stdlib, crypto
+        , erlangx, lager
+        , bedrock_core
+        ] },
+    {mod, { bedrock_net_app, []}},
+    {env, []}
+]}.
+

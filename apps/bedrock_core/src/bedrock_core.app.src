@@ -1,18 +1,18 @@
-{application, bedrock,
+{application, bedrock_core,
 [
-    {description, ""},
+    {description, "bedrock_core"},
     {vsn, "1.0.0"},
     {modules,
-        [ bedrock, bedrock_sup, bedrock_central
+        [ bedrock_core_app, bedrock_core_sup
         ] },
     {registered,
-        [ bedrock_central
+        [ 
         ] },
     {applications,
         [ kernel, stdlib, crypto
         , erlangx, lager
-        , bedrock_core, bedrock_net
         ] },
-    {mod, { bedrock, []}},
+    {mod, { bedrock_core_app, []}},
     {env, []}
 ]}.
+

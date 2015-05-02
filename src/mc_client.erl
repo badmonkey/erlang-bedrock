@@ -1,3 +1,0 @@
-
--module(mc_client).
-
